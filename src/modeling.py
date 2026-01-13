@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LogisticRegression, ElasticNet
@@ -11,100 +11,101 @@ from sklearn.metrics import confusion_matrix
 
 import lightgbm as lgb
 
-from src.metrics import (
-    classification_metrics_multiclass,
-    regression_metrics,
-)
+from src.metrics import classification_metrics_multiclass, regression_metrics
 
 
-def _make_groups_default(n: int) -> np.ndarray:
-    """
-    Placeholder groups when no grouping variable exists.
-    NOTE: This behaves like no grouping (each sample is its own group).
-    Prefer providing real groups (e.g., animal_id) whenever possible.
-    """
-    return np.arange(n)
-
-
-def eval_groupkfold_multiclass_lr(
+def eval_stratifiedkfold_multiclass_lr(
     X: pd.DataFrame,
     y: pd.Series,
-    groups: np.ndarray | None = None,
     labels_order: list[str] | None = None,
     n_splits: int = 5,
     seed: int = 42,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    max_iter: int = 5000,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Multiclass Logistic Regression with MinMax scaling.
+    Unit of analysis: image.
+    Returns: folds, summary, confusion matrix, OOF predictions.
+    """
     if labels_order is None:
         labels_order = ["GC", "G2", "G5", "G7", "G14"]
-    if groups is None:
-        groups = _make_groups_default(len(X))
 
-    cv = GroupKFold(n_splits=n_splits)
+    X = X.reset_index(drop=True)
+    y = pd.Series(y).reset_index(drop=True)
+
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
     pipe = Pipeline([
         ("scaler", MinMaxScaler()),
         ("clf", LogisticRegression(
             solver="lbfgs",
-            max_iter=5000,
+            max_iter=max_iter,
             random_state=seed
         ))
     ])
 
     rows = []
     cm_total = np.zeros((len(labels_order), len(labels_order)), dtype=int)
+    oof_pred = np.array([None] * len(X), dtype=object)
 
-    for fold, (tr, te) in enumerate(cv.split(X, y, groups=groups), start=1):
+    for fold, (tr, te) in enumerate(cv.split(X, y), start=1):
         pipe.fit(X.iloc[tr], y.iloc[tr])
         pred = pipe.predict(X.iloc[te])
+        oof_pred[te] = pred
 
         m = classification_metrics_multiclass(y.iloc[te], pred)
-        cm = confusion_matrix(y.iloc[te], pred, labels=labels_order)
-        cm_total += cm
-
+        cm_total += confusion_matrix(y.iloc[te], pred, labels=labels_order)
         rows.append({"fold": fold, "n_test": len(te), **m})
 
     df_folds = pd.DataFrame(rows)
-    summary = df_folds.drop(columns=["fold", "n_test"]).agg(["mean", "std"]).T.reset_index()
-    summary = summary.rename(columns={"index": "metric"})
+
+    summary = (
+        df_folds.drop(columns=["fold", "n_test"])
+        .agg(["mean", "std"])
+        .T.reset_index()
+        .rename(columns={"index": "metric"})
+    )
 
     cm_df = pd.DataFrame(cm_total, index=labels_order, columns=labels_order)
-    return df_folds, summary, cm_df
+    oof_df = pd.DataFrame({"y_true": y.values, "y_pred": oof_pred})
+
+    return df_folds, summary, cm_df, oof_df
 
 
-def eval_groupkfold_multiclass_lgbm(
+def eval_stratifiedkfold_multiclass_lgbm(
     X: pd.DataFrame,
     y: pd.Series,
-    groups: np.ndarray | None = None,
     labels_order: list[str] | None = None,
     n_splits: int = 5,
     seed: int = 42,
+    n_estimators: int = 500,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """
+    Multiclass LightGBM with MinMax scaling (protocol consistency).
+    Unit of analysis: image.
+    """
     if labels_order is None:
         labels_order = ["GC", "G2", "G5", "G7", "G14"]
-    if groups is None:
-        groups = _make_groups_default(len(X))
 
-    cv = GroupKFold(n_splits=n_splits)
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
-    # LightGBM does not strictly require scaling, but keep it for protocol consistency
     pipe = Pipeline([
         ("scaler", MinMaxScaler()),
         ("clf", lgb.LGBMClassifier(
             random_state=seed,
-            n_estimators=500,
+            n_estimators=n_estimators,
         ))
     ])
 
     rows = []
     cm_total = np.zeros((len(labels_order), len(labels_order)), dtype=int)
 
-    for fold, (tr, te) in enumerate(cv.split(X, y, groups=groups), start=1):
+    for fold, (tr, te) in enumerate(cv.split(X, y), start=1):
         pipe.fit(X.iloc[tr], y.iloc[tr])
         pred = pipe.predict(X.iloc[te])
 
         m = classification_metrics_multiclass(y.iloc[te], pred)
-        cm = confusion_matrix(y.iloc[te], pred, labels=labels_order)
-        cm_total += cm
+        cm_total += confusion_matrix(y.iloc[te], pred, labels=labels_order)
 
         rows.append({"fold": fold, "n_test": len(te), **m})
 
@@ -116,19 +117,19 @@ def eval_groupkfold_multiclass_lgbm(
     return df_folds, summary, cm_df
 
 
-def eval_groupkfold_regression_elasticnet(
+def eval_kfold_regression_elasticnet(
     X: pd.DataFrame,
     y: pd.Series,
-    groups: np.ndarray | None = None,
     n_splits: int = 5,
     seed: int = 42,
     alpha: float = 0.001,
     l1_ratio: float = 0.5,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    if groups is None:
-        groups = _make_groups_default(len(X))
-
-    cv = GroupKFold(n_splits=n_splits)
+    """
+    ElasticNet regression with MinMax scaling.
+    Unit of analysis: image.
+    """
+    cv = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
     pipe = Pipeline([
         ("scaler", MinMaxScaler()),
@@ -138,7 +139,7 @@ def eval_groupkfold_regression_elasticnet(
     rows = []
     oof = np.full(len(X), np.nan, dtype=float)
 
-    for fold, (tr, te) in enumerate(cv.split(X, y, groups=groups), start=1):
+    for fold, (tr, te) in enumerate(cv.split(X), start=1):
         pipe.fit(X.iloc[tr], y.iloc[tr])
         pred = pipe.predict(X.iloc[te])
         oof[te] = pred
@@ -154,30 +155,31 @@ def eval_groupkfold_regression_elasticnet(
     return df_folds, summary, oof_df
 
 
-def eval_groupkfold_regression_lgbm(
+def eval_kfold_regression_lgbm(
     X: pd.DataFrame,
     y: pd.Series,
-    groups: np.ndarray | None = None,
     n_splits: int = 5,
     seed: int = 42,
+    n_estimators: int = 1000,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    if groups is None:
-        groups = _make_groups_default(len(X))
-
-    cv = GroupKFold(n_splits=n_splits)
+    """
+    LightGBM regression with MinMax scaling.
+    Unit of analysis: image.
+    """
+    cv = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
     pipe = Pipeline([
         ("scaler", MinMaxScaler()),
         ("reg", lgb.LGBMRegressor(
             random_state=seed,
-            n_estimators=1000,
+            n_estimators=n_estimators,
         ))
     ])
 
     rows = []
     oof = np.full(len(X), np.nan, dtype=float)
 
-    for fold, (tr, te) in enumerate(cv.split(X, y, groups=groups), start=1):
+    for fold, (tr, te) in enumerate(cv.split(X), start=1):
         pipe.fit(X.iloc[tr], y.iloc[tr])
         pred = pipe.predict(X.iloc[te])
         oof[te] = pred
