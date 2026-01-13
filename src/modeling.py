@@ -79,13 +79,17 @@ def eval_stratifiedkfold_multiclass_lgbm(
     n_splits: int = 5,
     seed: int = 42,
     n_estimators: int = 500,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Multiclass LightGBM with MinMax scaling (protocol consistency).
     Unit of analysis: image.
+    Returns: folds, summary, confusion matrix, OOF predictions.
     """
     if labels_order is None:
         labels_order = ["GC", "G2", "G5", "G7", "G14"]
+
+    X = X.reset_index(drop=True)
+    y = pd.Series(y).reset_index(drop=True)
 
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
@@ -99,10 +103,12 @@ def eval_stratifiedkfold_multiclass_lgbm(
 
     rows = []
     cm_total = np.zeros((len(labels_order), len(labels_order)), dtype=int)
+    oof_pred = np.array([None] * len(X), dtype=object)
 
     for fold, (tr, te) in enumerate(cv.split(X, y), start=1):
         pipe.fit(X.iloc[tr], y.iloc[tr])
         pred = pipe.predict(X.iloc[te])
+        oof_pred[te] = pred
 
         m = classification_metrics_multiclass(y.iloc[te], pred)
         cm_total += confusion_matrix(y.iloc[te], pred, labels=labels_order)
@@ -114,7 +120,9 @@ def eval_stratifiedkfold_multiclass_lgbm(
     summary = summary.rename(columns={"index": "metric"})
 
     cm_df = pd.DataFrame(cm_total, index=labels_order, columns=labels_order)
-    return df_folds, summary, cm_df
+    oof_df = pd.DataFrame({"y_true": y.values, "y_pred": oof_pred})
+
+    return df_folds, summary, cm_df, oof_df
 
 
 def eval_kfold_regression_elasticnet(
