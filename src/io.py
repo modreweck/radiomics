@@ -1,7 +1,16 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import pandas as pd
+from matplotlib.figure import Figure
+
+
+def ensure_dir(path: Path) -> Path:
+    """Create directory if it does not exist and return it."""
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def read_table(path: Path) -> pd.DataFrame:
@@ -17,7 +26,7 @@ def read_table(path: Path) -> pd.DataFrame:
 
 def save_csv(df: pd.DataFrame, path: Path, index: bool = False) -> Path:
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_dir(path.parent)
     df.to_csv(path, index=index)
     return path
 
@@ -27,7 +36,7 @@ def save_parquet(df: pd.DataFrame, path: Path, index: bool = False) -> Path:
     Tries Parquet first; raises a clear error if parquet engine is unavailable.
     """
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_dir(path.parent)
     try:
         df.to_parquet(path, index=index)
     except Exception as e:
@@ -55,3 +64,33 @@ def save_dataset(df: pd.DataFrame, base_path: Path, index: bool = False) -> dict
         # keep CSV as guaranteed format
         saved["parquet"] = pqt_path  # path reserved, may not exist
     return saved
+
+
+# ---------------------------
+# Standardized outputs for results/
+# ---------------------------
+def save_table(df: pd.DataFrame, path: Path, index: bool = False) -> Path:
+    """
+    Standard helper for saving result tables.
+    Uses CSV for maximum portability.
+    """
+    return save_csv(df, path, index=index)
+
+
+def save_json(obj: dict, path: Path, indent: int = 2) -> Path:
+    """Save a dict-like object as JSON."""
+    path = Path(path)
+    ensure_dir(path.parent)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, indent=indent)
+    return path
+
+
+def save_figure(fig: Figure, path: Path, dpi: int = 300) -> Path:
+    """
+    Save a Matplotlib figure (PNG recommended).
+    """
+    path = Path(path)
+    ensure_dir(path.parent)
+    fig.savefig(path, dpi=dpi, bbox_inches="tight")
+    return path
