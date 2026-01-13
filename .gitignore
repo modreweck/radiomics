@@ -18,13 +18,15 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Data
-data/raw/*
+# Raw and processed data (not versioned)
+data/raw/
+data/processed/
+data/interim/
 !data/raw/README.md
 
-# Results (optional: comment out if you want to version all outputs)
-# results/*
-# supplementary/*
+# Results (optional, if regenerated)
+#results/figures/
+#results/tables/
 
 # Logs
 *.log
