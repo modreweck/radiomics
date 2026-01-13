@@ -1,0 +1,8 @@
+ERAT (radiomics) group classification — LightGBM (MinMax-scaled)
+CV strategy: StratifiedKFold(5)
+n_samples: 571
+n_features: 105
+Metrics (mean ± SD across folds):
+- Balanced accuracy: 0.9429 ± 0.0225
+- Weighted kappa (quadratic): 0.9451 ± 0.0400
+- MAE (days): 0.2413 ± 0.1343

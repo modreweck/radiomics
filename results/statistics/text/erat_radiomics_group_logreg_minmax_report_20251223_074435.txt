@@ -1,0 +1,8 @@
+ERAT (radiomics) group classification — Logistic Regression (MinMax-scaled)
+CV strategy: StratifiedKFold(5)
+n_samples: 571
+n_features: 105
+Metrics (mean ± SD across folds):
+- Balanced accuracy: 0.8075 ± 0.0366
+- Weighted kappa (quadratic): 0.8566 ± 0.0668
+- MAE (days): 0.7225 ± 0.2588

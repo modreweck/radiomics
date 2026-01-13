@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below."
+title: "Radiomics-Based Detection of Masseter Muscle Atrophy Using Ultrasound and Machine Learning"
+authors:
+  - family-names: Dreweck
+    given-names: Marcelo
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG)
+    email: modreweck@uepg.br
+version: 1.0.0
+date-released: 2025-01-01
+license: MIT
+repository-code: https://github.com/modreweck/...
+keywords:
+  - radiomics
+  - ultrasound
+  - machine learning
+  - masseter muscle
+  - botulinum toxin
+  - explainable AI
