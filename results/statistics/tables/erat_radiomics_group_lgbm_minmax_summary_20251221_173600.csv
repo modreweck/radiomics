@@ -1,4 +1,0 @@
-metric,mean,sd
-balanced_accuracy,0.942945,0.022511
-weighted_kappa_quadratic,0.945089,0.039974
-mae_days,0.241342,0.134319

@@ -1,1 +1,0 @@
-Spearman correlation between ERAT_norm and EHAT_norm was rho = 0.234, p < 0.001, with a 95% bootstrap confidence interval ranging from 0.150 to 0.314 (n = 571 ultrasound images).

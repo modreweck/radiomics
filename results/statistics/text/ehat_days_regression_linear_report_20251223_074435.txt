@@ -1,7 +1,0 @@
-EHAT-based days regression (Linear Regression)
-CV strategy: KFold(5) with shuffle (animal_id not available)
-n_samples: 571
-Metrics (mean ± SD across folds):
-- MAE (days): 3.8408 ± 0.2258
-- RMSE (days): 4.7242 ± 0.2180
-- R²: 0.0295 ± 0.0670

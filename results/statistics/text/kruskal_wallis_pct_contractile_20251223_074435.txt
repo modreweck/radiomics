@@ -1,4 +1,0 @@
-Kruskal–Wallis test for contractile area percentage
-H statistic = 50.416
-p-value = 0.000000
-Effect size (epsilon²) ≈ 0.082

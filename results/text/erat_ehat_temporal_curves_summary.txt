@@ -1,1 +1,0 @@
-Temporal trajectories showed a progressive increase in ERAT_norm across experimental groups, with a marked rise in later time points. In contrast, EHAT_norm exhibited smaller inter-group differences and greater overlap of standard deviations, suggesting lower temporal sensitivity compared with the automated radiomics-based method.

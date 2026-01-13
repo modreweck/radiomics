@@ -1,8 +1,0 @@
-ERAT (radiomics) regression — ElasticNet (MinMax-scaled)
-CV strategy: KFold(5) (animal_id not available)
-n_samples: 571
-n_features: 105
-Metrics (mean ± SD across folds):
-- MAE (days): 1.5859 ± 0.1402
-- RMSE (days): 1.9101 ± 0.1542
-- R²: 0.8400 ± 0.0303

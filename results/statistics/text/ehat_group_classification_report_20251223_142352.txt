@@ -1,7 +1,0 @@
-EHAT-based group classification (multinomial logistic regression)
-CV strategy: StratifiedKFold(5) (animal_id not available)
-n_samples: 571
-Metrics (mean ± SD across folds):
-- Balanced accuracy: 0.2797 ± 0.0232
-- Weighted kappa (quadratic): 0.2187 ± 0.0907
-- MAE (days): 4.5677 ± 0.3348

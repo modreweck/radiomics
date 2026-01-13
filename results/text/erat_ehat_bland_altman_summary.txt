@@ -1,1 +1,0 @@
-Bland–Altman analysis showed a mean bias of -0.02, with 95% limits of concordance ranging from -0.70 to 0.66, indicating wide dispersion of individual differences between ERAT_norm and EHAT_norm.

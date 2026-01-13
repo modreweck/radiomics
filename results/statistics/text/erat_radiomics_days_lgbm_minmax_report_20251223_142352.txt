@@ -1,8 +1,0 @@
-ERAT (radiomics) regression — LightGBM (MinMax-scaled)
-CV strategy: KFold(5) (animal_id not available)
-n_samples: 571
-n_features: 105
-Metrics (mean ± SD across folds):
-- MAE (days): 0.6651 ± 0.0700
-- RMSE (days): 1.0858 ± 0.1134
-- R²: 0.9482 ± 0.0113
