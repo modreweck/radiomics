@@ -34,3 +34,6 @@ data/interim/
 # IDEs
 .vscode/
 .idea/
+
+# Supplementary outputs (figures, tables, SHAP, text)
+supplementary/
