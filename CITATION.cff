@@ -3,9 +3,35 @@ message: "If you use this code, please cite it as below."
 title: "Radiomics-Based Detection of Masseter Muscle Atrophy Using Ultrasound and Machine Learning"
 authors:
   - family-names: Dreweck
-    given-names: Marcelo
-    affiliation: Universidade Estadual de Ponta Grossa (UEPG)
+    given-names: Marcelo de Oliveira
+    orcid: https://orcid.org/0000-0001-8535-7110
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG), Brazil
     email: modreweck@uepg.br
+  - family-names: Lipinski
+    given-names: Leandro Cavalcante
+    orcid: https://orcid.org/0000-0001-5662-622X
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG), Brazil
+    email: lclipinski@uepg.br
+  - family-names: Koga
+    given-names: Adriana Yuriko
+    orcid: https://orcid.org/0000-0002-9690-4287
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG), Brazil
+    email: adrianakoga@uepg.br
+  - family-names: Dreweck
+    given-names: Fabiana Dias Simas
+    orcid: https://orcid.org/0000-0001-5690-5595
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG), Brazil
+    email: simasfabi@gmail.com
+  - family-names: Bocate
+    given-names: Eduardo Coutinho Faria
+    orcid: https://orcid.org/0009-0007-6136-3779
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG), Brazil
+    email: eduardo.bocate@gmail.com
+  - family-names: Lachman
+    given-names: Lucas Ribas
+    orcid: https://orcid.org/0009-0006-9146-1655
+    affiliation: Universidade Estadual de Ponta Grossa (UEPG), Brazil
+    email: lucas.lachman@hotmail.com
 version: 1.0.0
 date-released: 2025-01-01
 license: MIT

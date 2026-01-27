@@ -92,7 +92,7 @@ Regression of days post–BoNT-A injection
 05_erat_vs_ehat_comparison.ipynb
 Direct comparison between ERAT and EHAT using correlation, agreement metrics, Bland–Altman analysis, and group-wise statistical testing.
 
-SHAP interpretability (executed within notebooks/04_erat_modeling.ipynb)
+SHAP interpretability (executed within notebooks/05_erat_vs_ehat_comparison.ipynb and 07_shap_erat_regression.ipynb)
 Model interpretability is performed using SHAP (SHapley Additive exPlanations) for:
 
 LightGBM multiclass classification (global and class-specific feature importance)
